@@ -1,19 +1,11 @@
-FROM python:3.9.10 AS build-env
-#-alpine3.15
+FROM python:3.9.10-slim-bullseye
 
-#RUN pip3 install 'git+https://github.com/keton/etrv2mqtt.git'
-RUN python -m pip wheel --wheel-dir=/tmp/wheelhouse 'git+https://github.com/keton/etrv2mqtt.git'
+RUN apt update && apt install --no-install-recommends git build-essential pkgconf libglib2.0-dev libglib2.0-0 -y\
+    && pip3 install 'git+https://github.com/keton/etrv2mqtt.git'\
+    && rm -rf /var/lib/apt/lists/*\
+    && apt purge git build-essential pkgconf libglib2.0-dev -y\
+    && apt autoremove -y
 
-FROM python:3.9.10-alpine3.15
 WORKDIR /app
-COPY --from=build-env /tmp/ /tmp/
-
-RUN apk add --no-cache git
-
-RUN pip3 install pyrsistent
-RUN python -m pip install --no-index --find-links=/tmp/wheelhouse 'git+https://github.com/keton/etrv2mqtt.git'
-
-RUN apk del git
-RUN rm -rf /tmp
 
 CMD [ "etrv2mqtt", "/data/options.json" ]
