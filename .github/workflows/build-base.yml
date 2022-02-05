@@ -39,7 +39,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          platforms: ${{platforms}}
+          platforms: ${{env.platforms}}
           push: true
           tags: |
             hbdk/eco2-tools:${{ steps.event_name.outputs.event_name }}
@@ -50,7 +50,7 @@ jobs:
         with:
           context: ./scan
           file: ./Dockerfile
-          platforms: ${{platforms}}
+          platforms: ${{env.platforms}}
           build-args: image=hbdk/eco2-tools:${{ steps.event_name.outputs.event_name }}
           push: true
           tags: |
