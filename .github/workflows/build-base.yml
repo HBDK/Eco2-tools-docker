@@ -34,6 +34,12 @@ jobs:
           tag_name=$(cat $GITHUB_EVENT_PATH | grep tag_name | sed -E 's/.*"([^"]+)".*/\1/')
           echo ::set-output name=event_name::$([[ ! -z "$tag_name" ]] && echo $tag_name || echo "manual")
 
+      - name: store latest_tag tag
+        id: latest_tag
+        run: |
+          tag_name=$(cat $GITHUB_EVENT_PATH | grep tag_name | sed -E 's/.*"([^"]+)".*/\1/')
+          echo ::set-output name=latest_tag::$([[ ! -z "$tag_name" ]] && echo "latest" || echo "dev")
+
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
@@ -43,16 +49,28 @@ jobs:
           push: true
           tags: |
             hbdk/eco2-tools:${{ steps.event_name.outputs.event_name }}
-            hbdk/eco2-tools:latest
+            hbdk/eco2-tools:${{ steps.latest_tag.outputs.latest_tag }}
 
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
           context: ./scan
-          file: ./scan/Dockerfile
+          file: ./Dockerfile-tools
           platforms: ${{env.platforms}}
           build-args: image=hbdk/eco2-tools:${{ steps.event_name.outputs.event_name }}
           push: true
           tags: |
             hbdk/eco2-tools-scan:${{ steps.event_name.outputs.event_name }}
-            hbdk/eco2-tools-scan:latest
+            hbdk/eco2-tools-scan:${{ steps.latest_tag.outputs.latest_tag }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: ./keytool
+          file: ./Dockerfile-tools
+          platforms: ${{env.platforms}}
+          build-args: image=hbdk/eco2-tools:${{ steps.event_name.outputs.event_name }}
+          push: true
+          tags: |
+            hbdk/eco2-tools-keytool:${{ steps.event_name.outputs.event_name }}
+            hbdk/eco2-tools-keytool:${{ steps.latest_tag.outputs.latest_tag }}
