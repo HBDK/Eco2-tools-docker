@@ -49,7 +49,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./scan
-          file: ./Dockerfile
+          file: ./scan/Dockerfile
           platforms: ${{env.platforms}}
           build-args: image=hbdk/eco2-tools:${{ steps.event_name.outputs.event_name }}
           push: true
